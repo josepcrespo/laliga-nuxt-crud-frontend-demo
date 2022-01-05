@@ -53,7 +53,8 @@
     </v-app-bar>
     <v-main>
       <v-container>
-        <Nuxt />
+        <!-- https://nuxtjs.org/docs/features/data-fetching/#caching -->
+        <nuxt keep-alive />
       </v-container>
     </v-main>
   </v-app>
