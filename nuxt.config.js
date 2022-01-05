@@ -44,13 +44,20 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/auth'
   ],
+
+  router: {
+    // This middleware comes from `@nuxtjs/auth` module.
+    // https://auth.nuxtjs.org/guide/middleware
+    middleware: ['auth']
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/'
+    baseURL: 'https://localhost'
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -67,6 +74,44 @@ export default {
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3
+        }
+      }
+    }
+  },
+
+  // https://auth.nuxtjs.org/
+  auth: {
+    // https://auth.nuxtjs.org/api/options#redirect
+    redirect: {
+      login: '/user-login',
+      logout: '/',
+      callback: '/user-login',
+      home: '/'
+    },
+    strategies: {
+      // https://auth.nuxtjs.org/schemes/local
+      local: {
+        // https://auth.nuxtjs.org/schemes/local#endpoints
+        endpoints: {
+          login: {
+            url: 'login',
+            method: 'post',
+            propertyName: 'data'
+          },
+          logout: false,
+          user: false
+        },
+        // https://auth.nuxtjs.org/schemes/local#token
+        token: {
+          property: 'data.api_token',
+          required: true,
+          global: true,
+          name: 'Authorization',
+          type: 'Bearer'
+        },
+        // https://auth.nuxtjs.org/schemes/local#user
+        user: {
+          autoFetch: false
         }
       }
     }
