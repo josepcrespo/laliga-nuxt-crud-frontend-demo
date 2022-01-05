@@ -63,7 +63,7 @@
 <script>
 
 export default {
-  auth: false,
+  auth: ['guest'],
 
   data () {
     return {
@@ -110,7 +110,8 @@ export default {
         if (e.response) {
           this.error = e.response.data.error
         } else {
-          console.log(e)
+          // eslint-disable-next-line no-console
+          console.error(e)
         }
       }
     },
