@@ -4,19 +4,9 @@
     justify="center"
   >
     <v-col cols="12">
-      <div class="text-h2 d-flex align-start mt-4">
-        <v-icon
-          size="60"
-          left
-        >
-          mdi-account-group
-        </v-icon>
-        Teams
-      </div>
-    </v-col>
-    <v-col cols="12">
       <v-data-table
         :headers="headers"
+        :search="search"
         :items="teams"
         :items-per-page="5"
         :loading="$fetchState.pending"
@@ -27,14 +17,88 @@
           <v-toolbar
             flat
           >
-            <v-spacer />
+            <v-toolbar-title>
+              <v-icon
+                large
+                left
+              >
+                mdi-account-group
+              </v-icon>
+              Teams
+            </v-toolbar-title>
+            <v-divider
+              class="mx-4"
+              inset
+              vertical
+            />
             <v-btn
-              class="mb-2"
+              class="mb-2 datatable-refresh-btn"
               @click="$fetch"
             >
-              Refresh data
+              <v-icon left>
+                mdi-sync
+              </v-icon>
+              Refresh Data
             </v-btn>
+            <v-btn
+              class="mb-2 datatable-new-btn"
+              @click="$fetch"
+            >
+              <v-icon left>
+                mdi-plus
+              </v-icon>
+              New Team
+            </v-btn>
+            <v-spacer />
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            />
           </v-toolbar>
+        </template>
+        <template #item="{ item }">
+          <tr>
+            <td>
+              {{ item.id }}
+            </td>
+            <td>
+              {{ item.name }}
+            </td>
+            <td>
+              {{ item.emblem }}
+            </td>
+            <td>
+              {{ item.salary_limit }}
+            </td>
+            <td
+              v-if="isAuthenticated"
+              style="text-align: right;"
+            >
+              <v-btn
+                small
+                class="datatable-edit-btn"
+                @click="editItem(item)"
+              >
+                <v-icon left>
+                  mdi-pencil
+                </v-icon>
+                Edit
+              </v-btn>
+              <v-btn
+                small
+                class="datatable-delete-btn"
+                @click="deleteItem(item)"
+              >
+                <v-icon left>
+                  mdi-delete
+                </v-icon>
+                Delete
+              </v-btn>
+            </td>
+          </tr>
         </template>
       </v-data-table>
     </v-col>
@@ -42,23 +106,54 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'IndexPage',
   auth: false,
   data () {
     return {
-      headers: [
-        { text: 'Id', value: 'id' },
-        { text: 'Name', value: 'name' },
-        { text: 'Emblem', value: 'emblem' },
-        { text: 'Salary Limit', value: 'salary_limit' }
-      ],
+      search: '',
       teams: []
     }
   },
   async fetch () {
     this.teams = await this.$axios.get('api/team')
       .then(response => response.data)
+  },
+  computed: {
+    ...mapGetters(['isAuthenticated']),
+    headers () {
+      const headers = [
+        { text: 'Id', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Emblem', value: 'emblem' },
+        { text: 'Salary Limit', value: 'salary_limit' }
+      ]
+      if (this.$auth.$state.loggedIn) {
+        headers.push({
+          align: 'center',
+          text: 'Actions',
+          value: 'actions',
+          sortable: false
+        })
+      }
+      return headers
+    }
+  },
+  methods: {
+    editItem (item) {
+      console.log(item)
+      // this.editedIndex = this.desserts.indexOf(item)
+      // this.editedItem = Object.assign({}, item)
+      // this.dialog = true
+    },
+    deleteItem (item) {
+      console.log(item)
+      // this.editedIndex = this.desserts.indexOf(item)
+      // this.editedItem = Object.assign({}, item)
+      // this.dialogDelete = true
+    }
   }
 }
 </script>

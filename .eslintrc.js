@@ -15,5 +15,10 @@ module.exports = {
   plugins: [
   ],
   // add your custom rules here
-  rules: {}
+  rules: {
+    // https://vuetifyjs.com/en/components/data-tables/#slots
+    'vue/valid-v-slot': [
+      'error', { allowModifiers: true }
+    ]
+  }
 }
