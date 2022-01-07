@@ -63,6 +63,7 @@
 <script>
 
 export default {
+  // https://auth.nuxtjs.org/guide/middleware
   auth: ['guest'],
 
   data () {
