@@ -36,7 +36,7 @@
             <v-btn
               :icon="btnsAsIcns"
               :small="btnsAsIcns"
-              class="mr-4 datatable-refresh-btn"
+              class="mr-3 datatable-refresh-btn"
               @click="$fetch"
             >
               <v-icon>
@@ -57,7 +57,7 @@
                 <v-btn
                   :icon="btnsAsIcns"
                   :small="btnsAsIcns"
-                  class="mr-4 datatable-new-btn"
+                  class="mr-3 datatable-new-btn"
                   v-bind="attrs"
                   v-on="on"
                 >
@@ -197,7 +197,7 @@
               <v-btn
                 :icon="btnsAsIcns"
                 :small="!btnsAsIcns"
-                class="datatable-delete-btn"
+                class="datatable-delete-btn ml-2"
                 @click="deleteItem(item)"
               >
                 <v-icon>
