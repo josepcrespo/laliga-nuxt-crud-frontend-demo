@@ -35,7 +35,8 @@
             />
             <v-btn
               :icon="btnsAsIcns"
-              class="mb-2 mr-2 datatable-refresh-btn"
+              :small="btnsAsIcns"
+              class="mr-4 datatable-refresh-btn"
               @click="$fetch"
             >
               <v-icon>
@@ -55,7 +56,8 @@
               <template #activator="{ on, attrs }">
                 <v-btn
                   :icon="btnsAsIcns"
-                  class="mb-2 mr-2 datatable-new-btn"
+                  :small="btnsAsIcns"
+                  class="mr-4 datatable-new-btn"
                   v-bind="attrs"
                   v-on="on"
                 >
