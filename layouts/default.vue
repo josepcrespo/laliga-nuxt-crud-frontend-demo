@@ -32,9 +32,28 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title v-text="title" />
       <v-spacer />
+      <v-tooltip bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            class="mx-2"
+            icon
+            v-bind="attrs"
+            @click="$vuetify.theme.dark = !$vuetify.theme.dark"
+            v-on="on"
+          >
+            <v-icon>
+              {{ $vuetify.theme.dark
+                ? 'mdi-lightbulb-outline'
+                : 'mdi-lightbulb-on' }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Switch app theme</span>
+      </v-tooltip>
       <v-btn
         v-if="!isAuthenticated"
         to="/user-login"
+        class="ml-2"
       >
         <v-icon left>
           mdi-login-variant
