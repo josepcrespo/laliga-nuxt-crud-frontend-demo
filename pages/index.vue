@@ -115,7 +115,6 @@
                 <v-card-actions>
                   <v-spacer />
                   <v-btn
-                    color="red"
                     text
                     @click="close"
                   >
@@ -149,11 +148,18 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn color="red" text @click="closeDelete">
-                    Cancel
+                  <v-btn
+                    text
+                    color="red"
+                    @click="deleteItemConfirm"
+                  >
+                    Delete
                   </v-btn>
-                  <v-btn color="blue" text @click="deleteItemConfirm">
-                    OK
+                  <v-btn
+                    text
+                    @click="closeDelete"
+                  >
+                    Cancel
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -326,6 +332,7 @@ export default {
     },
     deleteItem (item) {
       this.editedIndex = this.teams.indexOf(item)
+      this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
     deleteItemConfirm () {
