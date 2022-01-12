@@ -1,5 +1,5 @@
 <template>
-  <v-app dark>
+  <v-app>
     <v-navigation-drawer
       v-model="drawer"
       :mini-variant="miniVariant"
@@ -68,6 +68,7 @@ export default {
   data () {
     return {
       clipped: true,
+      darkTheme: false,
       drawer: true,
       fixed: false,
       items: [
@@ -90,6 +91,14 @@ export default {
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'loggedInUser'])
+  },
+  beforeMount () {
+    this.darkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (this.darkTheme) {
+      this.$vuetify.theme.dark = this.darkTheme
+    }
+    // eslint-disable-next-line no-console
+    console.info('Using Vuetify dark theme: %o', this.darkTheme)
   },
   methods: {
     async userLogout () {
