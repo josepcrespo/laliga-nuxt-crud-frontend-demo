@@ -349,13 +349,13 @@ export default {
           this.snackbar.color = 'red'
         }).finally(() => {
           this.snackbar.model = true
+          this.closeDelete()
         })
-      this.closeDelete()
     },
     editItem (item) {
       this.editedIndex = this.teams.indexOf(item)
       delete item.timestamp
-      delete item.players
+      delete item.players // TODO: add to the dynamic remove properties array.
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
@@ -368,10 +368,10 @@ export default {
       }
     },
     save () {
-      Object.assign(this.teams[this.editedIndex], this.editedItem)
       if (this.editedIndex > -1) {
         this.$axios.put(`api/team/${this.editedItem.id}`, this.editedItem)
           .then((response) => {
+            Object.assign(this.teams[this.editedIndex], this.editedItem)
             this.snackbar.color = 'green'
             this.snackbar.text =
               `The team "${this.editedItem.name}"
@@ -382,12 +382,12 @@ export default {
             this.snackbar.color = 'red'
           }).finally(() => {
             this.snackbar.model = true
-            this.$fetch()
             this.close()
           })
       } else {
         this.$axios.post('api/team', this.editedItem)
           .then((response) => {
+            this.editedItem.id = response.data.id
             this.teams.push(this.editedItem)
             this.snackbar.color = 'green'
             this.snackbar.text =
@@ -399,7 +399,6 @@ export default {
             this.snackbar.color = 'red'
           }).finally(() => {
             this.snackbar.model = true
-            this.$fetch()
             this.close()
           })
       }
