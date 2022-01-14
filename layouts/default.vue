@@ -49,6 +49,7 @@
           <v-list-item
             v-for="lang in languages"
             :key="lang.abbr"
+            :input-value="$vuetify.lang.current === lang.abbr"
             @click="$vuetify.lang.current = lang.abbr"
           >
             <v-list-item-title>
