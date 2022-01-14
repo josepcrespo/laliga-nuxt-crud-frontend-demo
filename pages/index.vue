@@ -1,6 +1,5 @@
 <template>
   <v-row
-    v-if="!$fetchState.pending && !$fetchState.error"
     align="center"
     justify="center"
   >
@@ -21,7 +20,16 @@
           {{ card.title }}
         </v-card-title>
         <v-card-subtitle class="text-h4">
-          {{ items[card.apiResource].length }} records
+          <v-progress-circular
+            v-if="$fetchState.pending"
+            indeterminate
+            color="primary"
+          />
+          <v-slide-x-transition>
+            <div v-if="!$fetchState.pending && !$fetchState.error">
+              {{ items[card.apiResource].length }} records
+            </div>
+          </v-slide-x-transition>
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer />
