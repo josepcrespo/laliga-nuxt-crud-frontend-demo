@@ -1,10 +1,38 @@
 <template>
   <v-row
+    v-if="!$fetchState.pending && !$fetchState.error"
     align="center"
     justify="center"
   >
-    <v-col cols="12">
-      <h1>LaLiga</h1>
+    <v-col
+      v-for="card in resourceCards"
+      :key="card.apiResource"
+      cols="12"
+      sm="6"
+    >
+      <v-card
+        :color="card.color"
+        class="pa-3"
+      >
+        <v-card-title class="text-h4 mb-3">
+          <v-icon
+            class="mr-2"
+            large
+          >
+            {{ card.icon }}
+          </v-icon>
+          {{ card.title }}
+        </v-card-title>
+        <v-card-subtitle class="text-h5">
+          {{ items[card.apiResource].length }} records
+        </v-card-subtitle>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn :to="card.to">
+            View
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </v-col>
   </v-row>
 </template>
@@ -16,11 +44,31 @@ export default {
   name: 'IndexPage',
   auth: false,
   data () {
-    return {}
+    return {
+      items: {},
+      resourceCards: [{
+        apiResource: 'team',
+        color: 'brown',
+        icon: 'mdi-account-group',
+        title: 'Teams',
+        to: '/teams'
+      }, {
+        apiResource: 'player',
+        color: 'blue-grey',
+        icon: 'mdi-account',
+        title: 'Players',
+        to: '/players'
+      }]
+    }
   },
   async fetch () {
-    this.teams = await this.$axios.get('api/team')
-      .then(response => response.data)
+    // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/for...of#diferencia_entre_for...of_y_for...in
+    // https://www.kuworking.com/javascript-loops-con-await-reduce
+    for (const resource of this.resourceCards) {
+      this.items[resource.apiResource] = await this.$axios
+        .get(`api/${resource.apiResource}`)
+        .then(response => response.data)
+    }
   },
   computed: {
     ...mapGetters(['isAuthenticated'])
