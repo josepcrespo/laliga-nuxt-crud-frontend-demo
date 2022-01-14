@@ -35,7 +35,7 @@
       <v-tooltip bottom>
         <template #activator="{ on, attrs }">
           <v-btn
-            class="mx-2"
+            class="mx-1"
             icon
             v-bind="attrs"
             @click="$vuetify.theme.dark = !$vuetify.theme.dark"
@@ -50,10 +50,28 @@
         </template>
         <span>Switch app theme</span>
       </v-tooltip>
+      <v-tooltip
+        v-if="isAuthenticated"
+        bottom
+      >
+        <template #activator="{ on, attrs }">
+          <v-btn
+            class="mx-1"
+            icon
+            to="/user-profile"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>
+              mdi-account-circle
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>User profile</span>
+      </v-tooltip>
       <v-btn
         v-if="!isAuthenticated"
         to="/user-login"
-        class="ml-2"
       >
         <v-icon left>
           mdi-login-variant
@@ -62,6 +80,7 @@
       </v-btn>
       <v-btn
         v-if="isAuthenticated"
+        class="ml-1"
         @click="userLogout"
       >
         <v-icon left>
@@ -105,11 +124,6 @@ export default {
           icon: 'mdi-account',
           title: 'Players',
           to: '/players'
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Profile',
-          to: '/user-profile'
         }
       ],
       miniVariant: false,
