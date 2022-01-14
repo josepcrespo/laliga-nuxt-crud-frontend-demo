@@ -83,44 +83,44 @@
                   <v-container>
                     <v-row>
                       <v-col
-                        v-for="prop in filterItemProps(editedItem, true)"
+                        v-for="prop in filterItemProps('editableProps', editedItem, true)"
                         :key="prop.name"
                         cols="12"
                         sm="6"
                         md="4"
                       >
                         <v-text-field
-                          v-if="findHeaderConfigByValue(prop.name).type === 'text'"
+                          v-if="['text', 'email'].includes(findObjByValue(prop.name).type)"
                           v-model="editedItem[prop.name]"
-                          :label="findHeaderConfigByValue(prop.name).text"
-                          type="text"
+                          :label="findObjByValue(prop.name).text"
+                          :type="findObjByValue(prop.name).type"
                         />
                         <v-text-field
-                          v-else-if="findHeaderConfigByValue(prop.name).type === 'number'"
+                          v-else-if="findObjByValue(prop.name).type === 'number'"
                           v-model="editedItem[prop.name]"
-                          :label="findHeaderConfigByValue(prop.name).text"
+                          :label="findObjByValue(prop.name).text"
                           type="number"
                         />
                         <v-text-field
-                          v-else-if="findHeaderConfigByValue(prop.name).type === 'date'"
+                          v-else-if="findObjByValue(prop.name).type === 'date'"
                           v-model="editedItem[prop.name]"
-                          :label="findHeaderConfigByValue(prop.name).text"
+                          :label="findObjByValue(prop.name).text"
                           type="date"
                         />
                         <v-select
-                          v-else-if="findHeaderConfigByValue(prop.name).type === 'enum'"
+                          v-else-if="findObjByValue(prop.name).type === 'enum'"
                           v-model="editedItem[prop.name]"
-                          :items="findHeaderConfigByValue(prop.name).enumArray"
-                          :label="findHeaderConfigByValue(prop.name).text"
+                          :items="findObjByValue(prop.name).enumArray"
+                          :label="findObjByValue(prop.name).text"
                         />
                         <v-select
-                          v-else-if="findHeaderConfigByValue(prop.name).type === 'relation'"
-                          v-model="editedItem[findHeaderConfigByValue(prop.name).relationForeignKey]"
-                          :items="withEmptyOption(prop.name, itemsFromRelations[prop.name])"
-                          :item-text="findHeaderConfigByValue(prop.name).relationValue"
+                          v-else-if="findObjByValue(prop.name).type === 'relation'"
+                          v-model="editedItem[findObjByValue(prop.name).relationForeignKey]"
+                          :items="itemsFromRelations[prop.name]"
+                          :item-text="findObjByValue(prop.name).relationValue"
                           item-value="id"
-                          :label="findHeaderConfigByValue(prop.name).text"
-                          :multiple="findHeaderConfigByValue(prop.name).multiple"
+                          :label="findObjByValue(prop.name).text"
+                          :multiple="findObjByValue(prop.name).multiple"
                         />
                       </v-col>
                     </v-row>
@@ -192,7 +192,7 @@
         <template #item="{ item }">
           <tr>
             <td
-              v-for="prop in filterItemProps(item)"
+              v-for="prop in filterItemProps('datatableHeaders', item)"
               :key="prop.name"
             >
               <template v-if="typeof prop.value !== 'object'">
@@ -272,6 +272,10 @@ export default {
       required: true,
       type: Array
     },
+    editableProps: {
+      required: true,
+      type: Array
+    },
     entity: {
       required: true,
       type: String
@@ -324,7 +328,7 @@ export default {
   },
   async fetch () {
     this.items = await this.getResourceList(this.entity)
-    this.datatableHeaders.filter((prop) => {
+    this.editableProps.filter((prop) => {
       return prop.type === 'relation'
     }).forEach(async (relation) => {
       const tempItemsList = await this.getResourceList(relation.value)
@@ -361,6 +365,9 @@ export default {
     dialogDelete (val) {
       val || this.closeDelete()
     }
+  },
+  beforeMount () {
+    this.initDefaultItem()
   },
   mounted () {
     this.onResize()
@@ -407,13 +414,13 @@ export default {
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
-    filterItemProps (item, withoutId) {
+    filterItemProps (propsArrName, item, withoutId) {
       withoutId = withoutId || false
       // itemProp[0] contains an item prop key
       // itemProp[1] contains the item prop value for the key on itemProp[0]
       return Object.entries(item).filter((itemProp) => {
         if (
-          this.datatableHeaders
+          this[propsArrName]
             .map(item => item.value)
             .includes(itemProp[0])
         ) {
@@ -432,8 +439,8 @@ export default {
         }
       })
     },
-    findHeaderConfigByValue (value) {
-      return this.datatableHeaders.find(obj => obj.value === value)
+    findObjByValue (value) {
+      return this.editableProps.find(obj => obj.value === value)
     },
     getApiErrorMessages (responseData) {
       if (responseData.message) {
@@ -454,6 +461,15 @@ export default {
       return await this.$axios
         .get(`api/${entity}`)
         .then(response => response.data)
+    },
+    /**
+     * If `this.editableProps` respects the same order of properties as the API,
+     * the elements of the "New" and "Edit" forms will respect the same order.
+     */
+    initDefaultItem () {
+      this.editableProps.forEach((prop) => {
+        this.defaultItem[prop.value] = this.getDefaultValueByType(prop.type)
+      })
     },
     onResize () {
       this.windowSize = { x: window.innerWidth, y: window.innerHeight }
@@ -507,15 +523,25 @@ export default {
         })
       }
     },
-    withEmptyOption (value, array) {
-      // const mandatory = this.findHeaderConfigByValue(value).mandatory
-      // const propName = this.findHeaderConfigByValue(value).relationValue
-      // if (mandatory) {
-      // return array
-      // } else {
-      // return array.unshift({ id: null, [propName]: '---' })
-      // }
-      return array
+    getDefaultValueByType (type) {
+      let defaultValue
+      switch (type) {
+        case 'text':
+        case 'date':
+        case 'enum':
+        case 'email':
+          defaultValue = ''
+          break
+        case 'number':
+          defaultValue = 0
+          break
+        case 'relation':
+          defaultValue = {}
+          break
+        default:
+          defaultValue = null
+      }
+      return defaultValue
     }
   }
 }

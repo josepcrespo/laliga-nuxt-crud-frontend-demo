@@ -1,12 +1,36 @@
 <template>
   <DatatableCrud
     :datatable-headers="[
-      { text: 'Id', value: 'id', type: 'number' },
+      { text: 'Id', value: 'id'},
+      { text: 'Name', value: 'name'},
+      { text: 'Position', value: 'position'},
+      { text: 'Salary', value: 'salary'},
+      {
+        text: 'Team',
+        value: 'team',
+        relationValue: 'name'
+      }
+    ]"
+    :editable-props="[
       { text: 'Name', value: 'name', type: 'text'},
       { text: 'Birth Date', value: 'birth_date', type: 'date' },
-      { text: 'Position', value: 'position', type: 'enum', enumArray: ['Portero', 'Defensa', 'Centrocampista', 'Delantero'] },
+      {
+        text: 'Position',
+        value: 'position',
+        type: 'enum',
+        enumArray: ['Portero', 'Defensa', 'Centrocampista', 'Delantero']
+      },
       { text: 'Salary', value: 'salary', type: 'number' },
-      { text: 'Team', value: 'team', type: 'relation', relationValue: 'name', relationForeignKey: 'team_id', multiple: false, mandatory: false }
+      {
+        text: 'Team',
+        value: 'team',
+        type: 'relation',
+        relationValue: 'name',
+        relationForeignKey: 'team_id',
+        multiple: false,
+        mandatory: false
+      },
+      { text: 'Email', value: 'email', type: 'email' },
     ]"
     entity="player"
     entity-plural="players"
