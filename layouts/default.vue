@@ -133,7 +133,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isAuthenticated', 'loggedInUser'])
+    ...mapGetters(['isAuthenticated'])
   },
   beforeMount () {
     this.darkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
