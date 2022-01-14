@@ -15,10 +15,7 @@
         class="pa-3"
       >
         <v-card-title class="text-h3 mb-3">
-          <v-icon
-            class="mr-2"
-            large
-          >
+          <v-icon class="mr-2 text-h3">
             {{ card.icon }}
           </v-icon>
           {{ card.title }}
