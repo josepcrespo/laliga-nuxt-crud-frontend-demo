@@ -97,6 +97,11 @@ export default {
           to: '/'
         },
         {
+          icon: 'mdi-account',
+          title: 'Players',
+          to: '/players'
+        },
+        {
           icon: 'mdi-chart-bubble',
           title: 'Profile',
           to: '/user-profile'
@@ -105,7 +110,7 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'LaLiga, frontend demo'
+      title: 'LaLiga'
     }
   },
   computed: {

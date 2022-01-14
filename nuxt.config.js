@@ -6,8 +6,8 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - laliga-nuxt-crud-frontend',
-    title: 'laliga-nuxt-crud-frontend',
+    titleTemplate: '%s - Nuxt frontend demo',
+    title: 'LaLiga',
     htmlAttrs: {
       lang: 'en'
     },
