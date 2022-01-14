@@ -14,7 +14,7 @@
         :color="card.color"
         class="pa-3"
       >
-        <v-card-title class="text-h4 mb-3">
+        <v-card-title class="text-h3 mb-3">
           <v-icon
             class="mr-2"
             large
@@ -23,7 +23,7 @@
           </v-icon>
           {{ card.title }}
         </v-card-title>
-        <v-card-subtitle class="text-h5">
+        <v-card-subtitle class="text-h4">
           {{ items[card.apiResource].length }} records
         </v-card-subtitle>
         <v-card-actions>
