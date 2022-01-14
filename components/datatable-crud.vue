@@ -559,8 +559,22 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .delete-item-modal {
-  background: linear-gradient(356deg, black 20%, transparent);
+  &.theme--dark {
+    background: linear-gradient(
+      356deg,
+      rgba(0, 0, 0, 1) 20%,
+      transparent
+    );
+  }
+
+  &.theme--light {
+    background: linear-gradient(
+      356deg,
+      rgba(255, 255, 255, 0.5) 20%,
+      transparent
+    );
+  }
 }
 </style>
