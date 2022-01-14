@@ -97,7 +97,7 @@
                         />
                         <v-text-field
                           v-else-if="findObjByValue(prop.name).type === 'number'"
-                          v-model="editedItem[prop.name]"
+                          v-model.number="editedItem[prop.name]"
                           :label="findObjByValue(prop.name).text"
                           type="number"
                         />
@@ -449,6 +449,26 @@ export default {
         return responseData.map(obj => obj.message).toString()
       }
     },
+    getDefaultValueByType (type) {
+      let defaultValue
+      switch (type) {
+        case 'text':
+        case 'date':
+        case 'enum':
+        case 'email':
+          defaultValue = ''
+          break
+        case 'number':
+          defaultValue = 0
+          break
+        case 'relation':
+          defaultValue = {}
+          break
+        default:
+          defaultValue = null
+      }
+      return defaultValue
+    },
     getRelatedItemName (object, itemPropKey) {
       return object[
         this.datatableHeaders
@@ -492,7 +512,7 @@ export default {
           `api/${this.entity}/${this.editedItem.id}`,
           this.removeObjProps(this.editedItem)
         ).then((response) => {
-          Object.assign(this.items[this.editedIndex], response.data)
+          this.updateItemProps(response.data)
           this.snackbar.color = 'green'
           this.snackbar.text =
             `The ${this.entity} "${response.data.name}"
@@ -524,25 +544,12 @@ export default {
         })
       }
     },
-    getDefaultValueByType (type) {
-      let defaultValue
-      switch (type) {
-        case 'text':
-        case 'date':
-        case 'enum':
-        case 'email':
-          defaultValue = ''
-          break
-        case 'number':
-          defaultValue = 0
-          break
-        case 'relation':
-          defaultValue = {}
-          break
-        default:
-          defaultValue = null
+    updateItemProps (item) {
+      for (const relation in this.itemsFromRelations) {
+        item[relation] = this.itemsFromRelations[relation]
+          .find(obj => obj.id === item[`${relation}_id`])
       }
-      return defaultValue
+      Object.assign(this.items[this.editedIndex], item)
     }
   }
 }
