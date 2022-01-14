@@ -9,7 +9,7 @@
     >
       <v-list>
         <v-list-item
-          v-for="(item, i) in items"
+          v-for="(item, i) in navigationDrawerItems"
           :key="i"
           :to="item.to"
           router
@@ -32,6 +32,31 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title v-text="title" />
       <v-spacer />
+      <v-menu
+        open-on-hover
+        offset-y
+      >
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-translate</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            v-for="lang in languages"
+            :key="lang"
+            @click="$vuetify.lang.current = lang.abbr"
+          >
+            <v-list-item-title>
+              {{ lang.name }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-tooltip bottom>
         <template #activator="{ on, attrs }">
           <v-btn
@@ -109,7 +134,12 @@ export default {
       darkTheme: false,
       drawer: true,
       fixed: false,
-      items: [
+      languages: [
+        { name: 'English', abbr: 'en' },
+        { name: 'Castellano', abbr: 'es' },
+        { name: 'Català', abbr: 'ca' }
+      ],
+      navigationDrawerItems: [
         {
           icon: 'mdi-apps',
           title: 'Home',
