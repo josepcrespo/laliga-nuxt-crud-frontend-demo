@@ -48,7 +48,7 @@
         <v-list>
           <v-list-item
             v-for="lang in languages"
-            :key="lang"
+            :key="lang.abbr"
             @click="$vuetify.lang.current = lang.abbr"
           >
             <v-list-item-title>
@@ -166,6 +166,12 @@ export default {
     ...mapGetters(['isAuthenticated'])
   },
   beforeMount () {
+    const browserLanguage = window.navigator.language.slice(0, 2)
+    this.$vuetify.lang.current =
+      this.languages.map(obj => obj.abbr)
+        .includes(browserLanguage)
+        ? browserLanguage
+        : 'en'
     this.darkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
     if (this.darkTheme) {
       this.$vuetify.theme.dark = this.darkTheme
