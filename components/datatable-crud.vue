@@ -366,8 +366,8 @@ export default {
       val || this.closeDelete()
     }
   },
-  beforeMount () {
-    this.initDefaultItem()
+  created () {
+    this.initItemTemplates()
   },
   mounted () {
     this.onResize()
@@ -466,10 +466,11 @@ export default {
      * If `this.editableProps` respects the same order of properties as the API,
      * the elements of the "New" and "Edit" forms will respect the same order.
      */
-    initDefaultItem () {
+    initItemTemplates () {
       this.editableProps.forEach((prop) => {
         this.defaultItem[prop.value] = this.getDefaultValueByType(prop.type)
       })
+      this.editedItem = Object.assign({}, this.defaultItem)
     },
     onResize () {
       this.windowSize = { x: window.innerWidth, y: window.innerHeight }
