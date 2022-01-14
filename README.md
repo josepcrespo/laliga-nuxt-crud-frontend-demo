@@ -1,4 +1,9 @@
-# laliga-nuxt-crud-frontend
+# LaLiga Nuxt CRUD frontend demo
+
+![Homepage (dark theme)](readme/images/home-dark-theme.png)
+![Homepage (light theme)](readme/images/home-light-theme.png)
+![User Login Form](readme/images/user-login-form.png)
+![CRUD for Teams](readme/images/crud-teams.png)
 
 ## Build Setup
 
