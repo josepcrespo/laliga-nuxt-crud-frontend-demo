@@ -545,6 +545,7 @@ export default {
       }
     },
     updateItemProps (item) {
+      // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/for...of#diferencia_entre_for...of_y_for...in
       for (const relation in this.itemsFromRelations) {
         item[relation] = this.itemsFromRelations[relation]
           .find(obj => obj.id === item[`${relation}_id`])
