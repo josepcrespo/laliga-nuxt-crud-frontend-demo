@@ -13,12 +13,22 @@
         :color="card.color"
         class="pa-3"
       >
-        <v-card-title class="text-h3 mb-3">
-          <v-icon class="mr-2 text-h3">
-            {{ card.icon }}
-          </v-icon>
-          {{ card.title }}
-        </v-card-title>
+        <v-slide-y-transition>
+          <v-card-title
+            v-if="!$fetchState.pending"
+            class="text-h3 mb-3"
+          >
+            <div v-if="$fetchState.error">
+              Error fetching {{ card.title }} data…
+            </div>
+            <div v-else>
+              <v-icon class="mr-2 text-h3">
+                {{ card.icon }}
+              </v-icon>
+              {{ card.title }}
+            </div>
+          </v-card-title>
+        </v-slide-y-transition>
         <v-card-subtitle class="text-h4">
           <v-progress-circular
             v-if="$fetchState.pending"
@@ -33,12 +43,15 @@
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            outlined
-            :to="card.to"
-          >
-            View
-          </v-btn>
+          <v-slide-x-reverse-transition>
+            <v-btn
+              v-if="!$fetchState.pending && !$fetchState.error"
+              outlined
+              :to="card.to"
+            >
+              View
+            </v-btn>
+          </v-slide-x-reverse-transition>
         </v-card-actions>
       </v-card>
     </v-col>
