@@ -31,7 +31,6 @@
             height="10"
             indeterminate
             rounded
-            striped
           />
           <v-slide-x-transition>
             <div v-if="!$fetchState.pending && !$fetchState.error">
