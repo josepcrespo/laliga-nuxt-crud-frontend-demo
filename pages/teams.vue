@@ -1,0 +1,25 @@
+<template>
+  <DatatableCrud
+    :datatable-headers="[
+      { text: 'Id', value: 'id'},
+      { text: 'Name', value: 'name'},
+      { text: 'Emblem', value: 'emblem'},
+      { text: 'Salary Limit', value: 'salary_limit'}
+    ]"
+    :editable-props="[
+      { text: 'Name', value: 'name', type: 'text'},
+      { text: 'Emblem', value: 'emblem', type: 'text' },
+      { text: 'Salary Limit', value: 'salary_limit', type: 'number' }
+    ]"
+    entity="team"
+    entity-plural="teams"
+    icon="mdi-account-group"
+    :remove-props-before-send="['timestamp']"
+  />
+</template>
+
+<script>
+export default {
+  name: 'TeamsPage'
+}
+</script>

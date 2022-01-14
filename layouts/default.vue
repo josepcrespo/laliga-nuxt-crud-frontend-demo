@@ -97,6 +97,11 @@ export default {
           to: '/'
         },
         {
+          icon: 'mdi-account-group',
+          title: 'Teams',
+          to: '/teams'
+        },
+        {
           icon: 'mdi-account',
           title: 'Players',
           to: '/players'
