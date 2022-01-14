@@ -11,7 +11,7 @@
         Profile Data
       </div>
     </v-col>
-    <v-col cols="12">
+    <v-col cols="12" class="px-4">
       <v-text-field
         v-model="loggedInUser.email"
         disabled
@@ -22,26 +22,14 @@
         disabled
         label="API Token"
       />
-      <div
-        class="text-caption"
-        style="color: rgba(255, 255, 255, 0.5);"
-      >
-        Roles
-      </div>
-      <v-chip-group
-        class="mb-3"
-        column
+      <v-select
+        v-model="loggedInUser.roles"
+        :items="loggedInUser.roles"
+        small-chips
+        label="Roles"
         multiple
-      >
-        <v-chip
-          v-for="(role, index) in loggedInUser.roles"
-          :key="index"
-          disabled
-          outlined
-        >
-          {{ role }}
-        </v-chip>
-      </v-chip-group>
+        disabled
+      />
     </v-col>
   </v-row>
 </template>
