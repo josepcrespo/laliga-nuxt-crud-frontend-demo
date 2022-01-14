@@ -42,7 +42,10 @@
               class="mr-3 datatable-refresh-btn"
               @click="$fetch"
             >
-              <v-icon>
+              <v-icon v-if="$fetchState.pending">
+                mdi-sync mdi-spin
+              </v-icon>
+              <v-icon v-else>
                 mdi-sync
               </v-icon>
               <div
