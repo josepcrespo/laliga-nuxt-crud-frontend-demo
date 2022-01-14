@@ -98,3 +98,25 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-card {
+  &.theme--dark {
+    background: linear-gradient(
+      356deg,
+      rgba(255, 255, 255, 0.33) 20%,
+      transparent,
+      rgba(0, 0, 0, 0.33) 85%,
+    );
+  }
+
+  &.theme--light {
+    background: linear-gradient(
+      356deg,
+      rgba(0, 0, 0, 0.33) 20%,
+      transparent,
+      rgba(255, 255, 255, 0.33) 85%,
+    );
+  }
+}
+</style>
