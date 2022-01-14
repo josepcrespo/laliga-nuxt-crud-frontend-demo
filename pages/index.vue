@@ -25,10 +25,13 @@
           </v-card-title>
         </v-slide-y-transition>
         <v-card-subtitle class="text-h4">
-          <v-progress-circular
+          <v-progress-linear
             v-if="$fetchState.pending"
-            indeterminate
             color="primary"
+            height="10"
+            indeterminate
+            rounded
+            striped
           />
           <v-slide-x-transition>
             <div v-if="!$fetchState.pending && !$fetchState.error">
