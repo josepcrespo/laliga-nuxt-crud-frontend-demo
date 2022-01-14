@@ -9,7 +9,7 @@
         :headers="headers"
         :search="search"
         :items="teams"
-        :items-per-page="5"
+        :items-per-page="8"
         :sort-by.sync="sortBy"
         :loading="$fetchState.pending"
         loading-text="Loading teams data… Please wait"
