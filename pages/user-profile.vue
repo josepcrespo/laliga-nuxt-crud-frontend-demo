@@ -36,6 +36,7 @@
         <v-chip
           v-for="(role, index) in loggedInUser.roles"
           :key="index"
+          disabled
           outlined
         >
           {{ role }}
