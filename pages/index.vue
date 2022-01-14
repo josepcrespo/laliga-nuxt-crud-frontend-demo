@@ -33,7 +33,10 @@
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer />
-          <v-btn :to="card.to">
+          <v-btn
+            outlined
+            :to="card.to"
+          >
             View
           </v-btn>
         </v-card-actions>
