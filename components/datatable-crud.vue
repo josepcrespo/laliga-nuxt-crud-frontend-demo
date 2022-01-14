@@ -347,7 +347,7 @@ export default {
     },
     headers () {
       const tempHeaders = this.datatableHeaders
-      if (this.$auth.$state.loggedIn) {
+      if (this.isAuthenticated) {
         tempHeaders.push({
           align: 'center',
           text: 'Actions',
