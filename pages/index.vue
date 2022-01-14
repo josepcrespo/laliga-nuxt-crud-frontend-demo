@@ -18,15 +18,10 @@
             v-if="!$fetchState.pending"
             class="text-h3 mb-3"
           >
-            <div v-if="$fetchState.error">
-              Error fetching {{ card.title }} data…
-            </div>
-            <div v-else>
-              <v-icon class="mr-2 text-h3">
-                {{ card.icon }}
-              </v-icon>
-              {{ card.title }}
-            </div>
+            <v-icon class="mr-2 text-h3">
+              {{ card.icon }}
+            </v-icon>
+            {{ card.title }}
           </v-card-title>
         </v-slide-y-transition>
         <v-card-subtitle class="text-h4">
@@ -39,19 +34,22 @@
             <div v-if="!$fetchState.pending && !$fetchState.error">
               {{ items[card.apiResource].length }} records
             </div>
+            <div v-else-if="!$fetchState.pending && $fetchState.error">
+              Error fetching data…
+            </div>
           </v-slide-x-transition>
         </v-card-subtitle>
         <v-card-actions>
           <v-spacer />
-          <v-slide-x-reverse-transition>
+          <v-slide-y-reverse-transition>
             <v-btn
-              v-if="!$fetchState.pending && !$fetchState.error"
+              v-if="!$fetchState.pending"
               outlined
               :to="card.to"
             >
               View
             </v-btn>
-          </v-slide-x-reverse-transition>
+          </v-slide-y-reverse-transition>
         </v-card-actions>
       </v-card>
     </v-col>
