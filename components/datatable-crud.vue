@@ -93,37 +93,37 @@
                         md="4"
                       >
                         <v-text-field
-                          v-if="['text', 'email'].includes(findObjByValue(prop.name).type)"
+                          v-if="['text', 'email'].includes(getEditableProp(prop.name).type)"
                           v-model="editedItem[prop.name]"
-                          :label="findObjByValue(prop.name).text"
-                          :type="findObjByValue(prop.name).type"
+                          :label="getEditableProp(prop.name).text"
+                          :type="getEditableProp(prop.name).type"
                         />
                         <v-text-field
-                          v-else-if="findObjByValue(prop.name).type === 'number'"
+                          v-else-if="getEditableProp(prop.name).type === 'number'"
                           v-model.number="editedItem[prop.name]"
-                          :label="findObjByValue(prop.name).text"
+                          :label="getEditableProp(prop.name).text"
                           type="number"
                         />
                         <v-text-field
-                          v-else-if="findObjByValue(prop.name).type === 'date'"
+                          v-else-if="getEditableProp(prop.name).type === 'date'"
                           v-model="editedItem[prop.name]"
-                          :label="findObjByValue(prop.name).text"
+                          :label="getEditableProp(prop.name).text"
                           type="date"
                         />
                         <v-select
-                          v-else-if="findObjByValue(prop.name).type === 'enum'"
+                          v-else-if="getEditableProp(prop.name).type === 'enum'"
                           v-model="editedItem[prop.name]"
-                          :items="findObjByValue(prop.name).enumArray"
-                          :label="findObjByValue(prop.name).text"
+                          :items="getEditableProp(prop.name).enumArray"
+                          :label="getEditableProp(prop.name).text"
                         />
                         <v-select
-                          v-else-if="findObjByValue(prop.name).type === 'relation'"
-                          v-model="editedItem[findObjByValue(prop.name).relationForeignKey]"
+                          v-else-if="getEditableProp(prop.name).type === 'relation'"
+                          v-model="editedItem[prop.name][getEditableProp(prop.name).relationId]"
                           :items="itemsFromRelations[prop.name]"
-                          :item-text="findObjByValue(prop.name).relationValue"
+                          :item-text="getEditableProp(prop.name).relationValue"
                           item-value="id"
-                          :label="findObjByValue(prop.name).text"
-                          :multiple="findObjByValue(prop.name).multiple"
+                          :label="getEditableProp(prop.name).text"
+                          :multiple="getEditableProp(prop.name).multiple"
                         />
                       </v-col>
                     </v-row>
@@ -442,7 +442,7 @@ export default {
         }
       })
     },
-    findObjByValue (value) {
+    getEditableProp (value) {
       return this.editableProps.find(obj => obj.value === value)
     },
     getApiErrorMessages (responseData) {

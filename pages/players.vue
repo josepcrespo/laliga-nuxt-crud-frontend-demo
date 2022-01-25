@@ -26,7 +26,7 @@
         value: 'team',
         type: 'relation',
         relationValue: 'name',
-        relationForeignKey: 'team_id',
+        relationId: 'id',
         multiple: false,
         mandatory: false
       },
