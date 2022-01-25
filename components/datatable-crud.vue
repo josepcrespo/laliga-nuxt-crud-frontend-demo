@@ -85,46 +85,67 @@
                 <v-card-text>
                   <v-container>
                     <v-row>
-                      <v-col
-                        v-for="prop in filterItemProps('editableProps', editedItem, true)"
-                        :key="prop.name"
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-if="['text', 'email'].includes(getEditableProp(prop.name).type)"
-                          v-model="editedItem[prop.name]"
-                          :label="getEditableProp(prop.name).text"
-                          :type="getEditableProp(prop.name).type"
-                        />
-                        <v-text-field
-                          v-else-if="getEditableProp(prop.name).type === 'number'"
-                          v-model.number="editedItem[prop.name]"
-                          :label="getEditableProp(prop.name).text"
-                          type="number"
-                        />
-                        <v-text-field
-                          v-else-if="getEditableProp(prop.name).type === 'date'"
-                          v-model="editedItem[prop.name]"
-                          :label="getEditableProp(prop.name).text"
-                          type="date"
-                        />
-                        <v-select
-                          v-else-if="getEditableProp(prop.name).type === 'enum'"
-                          v-model="editedItem[prop.name]"
-                          :items="getEditableProp(prop.name).enumArray"
-                          :label="getEditableProp(prop.name).text"
-                        />
-                        <v-select
-                          v-else-if="getEditableProp(prop.name).type === 'relation'"
-                          v-model="editedItem[prop.name][getEditableProp(prop.name).relationId]"
-                          :items="itemsFromRelations[prop.name]"
-                          :item-text="getEditableProp(prop.name).relationValue"
-                          item-value="id"
-                          :label="getEditableProp(prop.name).text"
-                          :multiple="getEditableProp(prop.name).multiple"
-                        />
+                      <v-col cols="12">
+                        <v-form
+                          ref="itemForm"
+                          v-model="itemFormModel"
+                          lazy-validation
+                        >
+                          <v-row>
+                            <v-col
+                              v-for="prop in filterItemProps('editableProps', editedItem, true)"
+                              :key="prop.name"
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-if="['text', 'email'].includes(getEditableProp(prop.name).type)"
+                                v-model="editedItem[prop.name]"
+                                :label="getEditableProp(prop.name).text"
+                                :type="getEditableProp(prop.name).type"
+                                :required="getEditableProp(prop.name).required"
+                                :rules="[
+                                  v => (getEditableProp(prop.name).required ? !!v : true) || 'Required',
+                                  v => (getEditableProp(prop.name).type === 'email' ? /.+@.+\..+/.test(v) : true) || 'E-mail must be valid',
+                                ]"
+                              />
+                              <v-text-field
+                                v-else-if="getEditableProp(prop.name).type === 'number'"
+                                v-model.number="editedItem[prop.name]"
+                                :label="getEditableProp(prop.name).text"
+                                :required="getEditableProp(prop.name).required"
+                                :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
+                                type="number"
+                              />
+                              <v-text-field
+                                v-else-if="getEditableProp(prop.name).type === 'date'"
+                                v-model="editedItem[prop.name]"
+                                :label="getEditableProp(prop.name).text"
+                                :required="getEditableProp(prop.name).required"
+                                :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
+                                type="date"
+                              />
+                              <v-select
+                                v-else-if="getEditableProp(prop.name).type === 'enum'"
+                                v-model="editedItem[prop.name]"
+                                :items="getEditableProp(prop.name).enumArray"
+                                :label="getEditableProp(prop.name).text"
+                                :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
+                              />
+                              <v-select
+                                v-else-if="getEditableProp(prop.name).type === 'relation'"
+                                v-model="editedItem[prop.name][getEditableProp(prop.name).relationId]"
+                                :items="itemsFromRelations[prop.name]"
+                                :item-text="getEditableProp(prop.name).relationValue"
+                                item-value="id"
+                                :label="getEditableProp(prop.name).text"
+                                :multiple="getEditableProp(prop.name).multiple"
+                                :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
+                              />
+                            </v-col>
+                          </v-row>
+                        </v-form>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -140,6 +161,7 @@
                   <v-btn
                     color="blue"
                     text
+                    :disabled="itemFormModel === false"
                     @click="save"
                   >
                     Save
@@ -314,6 +336,7 @@ export default {
       editedIndex: -1,
       editedItem: {},
       defaultItem: {},
+      itemFormModel: true,
       items: [],
       itemsFromRelations: {},
       search: '',
@@ -335,7 +358,7 @@ export default {
       return prop.type === 'relation'
     }).forEach(async (relation) => {
       const tempItemsList = await this.getResourceList(relation.value)
-      if (relation.mandatory === false) {
+      if (relation.required === false) {
         tempItemsList.unshift({ id: null, name: `[Without ${relation.value}]` })
       }
       this.itemsFromRelations[relation.value] = tempItemsList

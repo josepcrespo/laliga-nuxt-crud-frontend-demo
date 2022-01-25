@@ -7,9 +7,9 @@
       { text: 'Salary Limit', value: 'salary_limit'}
     ]"
     :editable-props="[
-      { text: 'Name', value: 'name', type: 'text'},
-      { text: 'Emblem', value: 'emblem', type: 'text' },
-      { text: 'Salary Limit', value: 'salary_limit', type: 'number' }
+      { text: 'Name', value: 'name', type: 'text', required: true },
+      { text: 'Emblem', value: 'emblem', type: 'text', required: false },
+      { text: 'Salary Limit', value: 'salary_limit', type: 'number', required: true }
     ]"
     entity="team"
     entity-plural="teams"

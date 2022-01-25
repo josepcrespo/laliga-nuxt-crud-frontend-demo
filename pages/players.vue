@@ -12,15 +12,16 @@
       }
     ]"
     :editable-props="[
-      { text: 'Name', value: 'name', type: 'text'},
-      { text: 'Birth Date', value: 'birth_date', type: 'date' },
+      { text: 'Name', value: 'name', type: 'text', required: true },
+      { text: 'Birth Date', value: 'birth_date', type: 'date', required: true },
       {
         text: 'Position',
         value: 'position',
         type: 'enum',
-        enumArray: ['Portero', 'Defensa', 'Centrocampista', 'Delantero']
+        enumArray: ['Portero', 'Defensa', 'Centrocampista', 'Delantero'],
+        required: true
       },
-      { text: 'Salary', value: 'salary', type: 'number' },
+      { text: 'Salary', value: 'salary', type: 'number', required: false },
       {
         text: 'Team',
         value: 'team',
@@ -28,9 +29,9 @@
         relationValue: 'name',
         relationId: 'id',
         multiple: false,
-        mandatory: false
+        required: false
       },
-      { text: 'Email', value: 'email', type: 'email' },
+      { text: 'Email', value: 'email', type: 'email', required: true },
     ]"
     entity="player"
     entity-plural="players"
