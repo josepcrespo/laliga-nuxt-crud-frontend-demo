@@ -151,9 +151,10 @@
                                 v-model="editedItem[prop.name][getEditableProp(prop.name).relationId]"
                                 :items="itemsFromRelations[prop.name]"
                                 :item-text="getEditableProp(prop.name).relationValue"
-                                item-value="id"
+                                :item-value="getEditableProp(prop.name).relationId"
                                 :label="getEditableProp(prop.name).text"
                                 :multiple="getEditableProp(prop.name).multiple"
+                                :return-object="false"
                                 :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
                               />
                             </v-col>
@@ -569,9 +570,9 @@ export default {
       if (this.editedIndex > -1) {
         this.$axios.put(
           `api/${this.entity}/${this.editedItem.id}`,
-          this.removeObjProps(this.editedItem)
+          this.updateItemRelations(this.removeObjProps(this.editedItem))
         ).then((response) => {
-          this.updateItemProps(response.data)
+          Object.assign(this.items[this.editedIndex], response.data)
           this.snackBar.color = 'green'
           this.snackBar.text =
             `The ${this.entity} "${response.data.name}"
@@ -590,7 +591,7 @@ export default {
       } else {
         this.$axios.post(
           `api/${this.entity}`,
-          this.removeObjProps(this.editedItem)
+          this.updateItemRelations(this.removeObjProps(this.editedItem))
         ).then((response) => {
           this.editedItem.id = response.data.id
           this.items.push(response.data)
@@ -611,13 +612,17 @@ export default {
         })
       }
     },
-    updateItemProps (item) {
+    /**
+     * Vuetify `v-select` has a bug, it always returns the whole selected object.
+     * Our API requires to receive, only, the ID for each relation in the entity.
+     * Example: { team: 1 }
+     */
+    updateItemRelations (item) {
       // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/for...of#diferencia_entre_for...of_y_for...in
       for (const relation in this.itemsFromRelations) {
-        item[relation] = this.itemsFromRelations[relation]
-          .find(obj => obj.id === item[`${relation}_id`])
+        item[relation] = item[relation].id
       }
-      Object.assign(this.items[this.editedIndex], item)
+      return item
     }
   }
 }
