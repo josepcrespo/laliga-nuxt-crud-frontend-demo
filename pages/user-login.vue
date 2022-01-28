@@ -26,7 +26,13 @@
     <v-col cols="12">
       <!-- https://auth.nuxtjs.org/schemes/local#usage -->
       <!-- eslint-disable-next-line vue/valid-v-model -->
-      <form ref="form" v-model="valid" method="post" lazy-validation @submit.prevent="userLogin()">
+      <v-form
+        ref="loginForm"
+        v-model="valid"
+        method="post"
+        lazy-validation
+        @submit.prevent="userLogin()"
+      >
         <v-text-field
           v-model="email"
           type="email"
@@ -51,17 +57,21 @@
           >
             Submit
           </v-btn>
-          <v-btn @click="reset">
+          <v-btn @click="$refs.loginForm.reset()">
             Clear
           </v-btn>
         </div>
-      </form>
+      </v-form>
+      <snack-bar
+        ref="snackBar"
+        :color="snackBar.color"
+        :text="snackBar.text"
+      />
     </v-col>
   </v-row>
 </template>
 
 <script>
-
 export default {
   // https://auth.nuxtjs.org/guide/middleware
   auth: ['guest'],
@@ -79,6 +89,10 @@ export default {
         v => !!v || 'Password is required'
       ],
       error: null,
+      snackBar: {
+        color: undefined,
+        text: ''
+      },
       valid: true
     }
   },
@@ -86,13 +100,12 @@ export default {
   methods: {
     async userLogin () {
       this.checkingCredentials = true
-      try {
-        const response = await this.$auth.loginWith('local', {
-          data: {
-            email: this.email,
-            password: this.password
-          }
-        })
+      await this.$auth.loginWith('local', {
+        data: {
+          email: this.email,
+          password: this.password
+        }
+      }).then((response) => {
         /**
          * Useful for APIs with Bearer token authentication.
          * https://auth.nuxtjs.org/api/auth/#setusertokentoken-refreshtoken
@@ -102,22 +115,29 @@ export default {
          * nuxt.config.js in the `auth.strategies.local.token.global` property).
          */
         this.$auth.setUserToken(response.data.api_token)
-        // console.log('Axios Headeres after login: %o', this.$axios.defaults.headers)
+        // console.log('Axios Headers after login: %o', this.$axios.defaults.headers)
         this.$auth.setUser(response.data)
         this.checkingCredentials = false
         this.$router.push('/user-profile')
-      } catch (e) {
+      }).catch((e) => {
         this.checkingCredentials = false
-        if (e.response) {
-          this.error = e.response.data.error
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(e)
+        let userFriendlyMessage
+        switch (e.message) {
+          case 'Network Error':
+            userFriendlyMessage = 'Could not establish connection with "LaLiga API".'
+            break
+          case 'Request failed with status code 401':
+            userFriendlyMessage = 'Invalid credentials. Try again!'
+            break
+          default:
+            userFriendlyMessage = 'Oops! An unexpected error occurred.'
         }
-      }
-    },
-    reset () {
-      this.$refs.form.reset()
+        // eslint-disable-next-line no-console
+        console.error(`${userFriendlyMessage} %o`, e.message)
+        this.snackBar.color = 'red'
+        this.snackBar.text = userFriendlyMessage
+        this.$refs.snackBar.show()
+      })
     }
   }
 }

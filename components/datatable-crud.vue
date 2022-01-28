@@ -87,10 +87,23 @@
                     <v-row>
                       <v-col cols="12">
                         <v-form
-                          ref="itemForm"
-                          v-model="itemFormModel"
+                          v-model="itemForm.model"
                           lazy-validation
                         >
+                          <v-row>
+                            <v-col cols="12">
+                              <v-alert
+                                v-for="(error, index) in itemForm.errors"
+                                :key="index"
+                                border="top"
+                                colored-border
+                                type="error"
+                                elevation="2"
+                              >
+                                {{ error }}
+                              </v-alert>
+                            </v-col>
+                          </v-row>
                           <v-row>
                             <v-col
                               v-for="prop in filterItemProps('editableProps', editedItem, true)"
@@ -161,7 +174,7 @@
                   <v-btn
                     color="blue"
                     text
-                    :disabled="itemFormModel === false"
+                    :disabled="itemForm.model === false"
                     @click="save"
                   >
                     Save
@@ -267,22 +280,11 @@
           </tr>
         </template>
       </v-data-table>
-      <v-snackbar
-        v-model="snackbar.model"
-        :color="snackbar.color"
-        :timeout="snackbar.timeout"
-      >
-        {{ snackbar.text }}
-        <template #action="{ attrs }">
-          <v-btn
-            text
-            v-bind="attrs"
-            @click="snackbar.model = false"
-          >
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
+      <snack-bar
+        ref="snackBar"
+        :color="snackBar.color"
+        :text="snackBar.text"
+      />
     </v-col>
   </v-row>
 </template>
@@ -336,15 +338,16 @@ export default {
       editedIndex: -1,
       editedItem: {},
       defaultItem: {},
-      itemFormModel: true,
+      itemForm: {
+        errors: [],
+        model: true
+      },
       items: [],
       itemsFromRelations: {},
       search: '',
-      snackbar: {
+      snackBar: {
         color: undefined,
-        model: false,
-        text: '',
-        timeout: 10000
+        text: ''
       },
       windowSize: {
         x: 0,
@@ -353,16 +356,36 @@ export default {
     }
   },
   async fetch () {
-    this.items = await this.getResourceList(this.entity)
-    this.editableProps.filter((prop) => {
-      return prop.type === 'relation'
-    }).forEach(async (relation) => {
-      const tempItemsList = await this.getResourceList(relation.value)
-      if (relation.required === false) {
-        tempItemsList.unshift({ id: null, name: `[Without ${relation.value}]` })
+    try {
+      this.items = await this.getResourceList(this.entity)
+      this.editableProps.filter((prop) => {
+        return prop.type === 'relation'
+      }).forEach(async (relation) => {
+        const tempItemsList = await this.getResourceList(relation.value)
+        if (relation.required === false) {
+          tempItemsList.unshift({ id: null, name: `[Without ${relation.value}]` })
+        }
+        this.itemsFromRelations[relation.value] = tempItemsList
+      })
+    } catch (catchEvent) {
+      this.checkingCredentials = false
+      let userFriendlyMessage
+      switch (catchEvent.message) {
+        case 'Network Error':
+          userFriendlyMessage = 'Could not establish connection with "LaLiga API".'
+          break
+        case 'Request failed with status code 401':
+          userFriendlyMessage = 'Invalid credentials. Try again!'
+          break
+        default:
+          userFriendlyMessage = 'Oops! An unexpected error occurred.'
       }
-      this.itemsFromRelations[relation.value] = tempItemsList
-    })
+      // eslint-disable-next-line no-console
+      console.error(`${userFriendlyMessage} %o`, catchEvent.message)
+      this.snackBar.color = 'red'
+      this.snackBar.text = userFriendlyMessage
+      this.$refs.snackBar.show()
+    }
   },
   computed: {
     ...mapGetters(['isAuthenticated']),
@@ -400,6 +423,7 @@ export default {
   },
   methods: {
     close () {
+      this.itemForm.errors = []
       this.dialog = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
@@ -423,16 +447,19 @@ export default {
         .delete(`api/${this.entity}/${this.editedItem.id}`)
         .then((response) => {
           this.items.splice(this.editedIndex, 1)
-          this.snackbar.text =
+          this.snackBar.color = 'green'
+          this.snackBar.text =
             `The ${this.entity} "${this.editedItem.name}"
              has been successfully removed from the database.`
+          this.$refs.snackBar.show()
         })
-        .catch((error) => {
-          this.snackbar.text = this.getApiErrorMessages(error.response.data)
-          this.snackbar.color = 'red'
-        }).finally(() => {
-          this.snackbar.model = true
-          this.closeDelete()
+        .catch((e) => {
+          const errorMessage = e.response?.data?.form?.message || e.message
+          // eslint-disable-next-line no-console
+          console.error(errorMessage)
+          this.snackBar.color = 'red'
+          this.snackBar.text = errorMessage
+          this.$refs.snackBar.show()
         })
     },
     editItem (item) {
@@ -467,13 +494,6 @@ export default {
     },
     getEditableProp (value) {
       return this.editableProps.find(obj => obj.value === value)
-    },
-    getApiErrorMessages (responseData) {
-      if (responseData.message) {
-        return responseData.message
-      } else if (Array.isArray(responseData)) {
-        return responseData.map(obj => obj.message).toString()
-      }
     },
     getDefaultValueByType (type) {
       let defaultValue
@@ -527,10 +547,23 @@ export default {
       }
     },
     removeObjProps (object) {
+      /**
+       * If the API returns errors, preserving the full content of the original
+       * object would allow the user to continue making changes to the form.
+       * @see https://gist.github.com/GeorgeGkas/36f7a7f9a9641c2115a11d58233ebed2 */
+      const clone = Object.assign(
+        Object.create(
+          // Set the prototype of the new object to the prototype of the instance.
+          // Used to allow new object behave like class instance.
+          Object.getPrototypeOf(object)
+        ),
+        // Prevent shallow copies of nested structures like arrays, etc
+        JSON.parse(JSON.stringify(object))
+      )
       this.removePropsBeforeSend.forEach((prop) => {
-        delete object[prop]
+        delete clone[prop]
       })
-      return object
+      return clone
     },
     save () {
       if (this.editedIndex > -1) {
@@ -539,16 +572,20 @@ export default {
           this.removeObjProps(this.editedItem)
         ).then((response) => {
           this.updateItemProps(response.data)
-          this.snackbar.color = 'green'
-          this.snackbar.text =
+          this.snackBar.color = 'green'
+          this.snackBar.text =
             `The ${this.entity} "${response.data.name}"
             has been successfully modified and saved to the database.`
-        }).catch((error) => {
-          this.snackbar.text = this.getApiErrorMessages(error.response.data)
-          this.snackbar.color = 'red'
-        }).finally(() => {
-          this.snackbar.model = true
           this.close()
+          this.$refs.snackBar.show()
+        }).catch((e) => {
+          const errorMessage = e.response?.data?.form?.message || e.message
+          // eslint-disable-next-line no-console
+          console.error(errorMessage)
+          this.itemForm.errors = e.response.data.errors
+          this.snackBar.color = 'red'
+          this.snackBar.text = errorMessage
+          this.$refs.snackBar.show()
         })
       } else {
         this.$axios.post(
@@ -557,16 +594,20 @@ export default {
         ).then((response) => {
           this.editedItem.id = response.data.id
           this.items.push(response.data)
-          this.snackbar.color = 'green'
-          this.snackbar.text =
+          this.snackBar.color = 'green'
+          this.snackBar.text =
             `The ${this.entity} "${response.data.name}"
             has been successfully added to the database.`
-        }).catch((error) => {
-          this.snackbar.text = this.getApiErrorMessages(error.response.data)
-          this.snackbar.color = 'red'
-        }).finally(() => {
-          this.snackbar.model = true
           this.close()
+          this.$refs.snackBar.show()
+        }).catch((e) => {
+          const errorMessage = e.response?.data?.form?.message || e.message
+          // eslint-disable-next-line no-console
+          console.error(errorMessage)
+          this.itemForm.errors = e.response.data.errors
+          this.snackBar.color = 'red'
+          this.snackBar.text = errorMessage
+          this.$refs.snackBar.show()
         })
       }
     },

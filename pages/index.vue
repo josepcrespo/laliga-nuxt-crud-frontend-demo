@@ -4,7 +4,7 @@
     justify="center"
   >
     <v-col
-      v-for="card in resourceCards"
+      v-for="card in entityCards"
       :key="card.apiResource"
       cols="12"
       sm="6"
@@ -33,10 +33,16 @@
             rounded
           />
           <v-slide-x-transition>
-            <div v-if="!$fetchState.pending && !$fetchState.error">
+            <div
+              v-if="
+                !$fetchState.pending &&
+                  !$fetchState.error &&
+                  items[card.apiResource]
+              "
+            >
               {{ items[card.apiResource].length }} records
             </div>
-            <div v-else-if="!$fetchState.pending && $fetchState.error">
+            <div v-else-if="!$fetchState.pending">
               Error fetching data…
             </div>
           </v-slide-x-transition>
@@ -54,6 +60,11 @@
           </v-slide-y-reverse-transition>
         </v-card-actions>
       </v-card>
+      <snack-bar
+        ref="snackBar"
+        :color="snackBar.color"
+        :text="snackBar.text"
+      />
     </v-col>
   </v-row>
 </template>
@@ -67,7 +78,7 @@ export default {
   data () {
     return {
       items: {},
-      resourceCards: [{
+      entityCards: [{
         apiResource: 'team',
         color: 'brown',
         icon: 'mdi-account-group',
@@ -79,22 +90,45 @@ export default {
         icon: 'mdi-account',
         title: 'Players',
         to: '/players'
-      }]
+      }],
+      snackBar: {
+        color: undefined,
+        text: ''
+      }
     }
   },
   async fetch () {
+    try {
     // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Statements/for...of#diferencia_entre_for...of_y_for...in
     // https://www.kuworking.com/javascript-loops-con-await-reduce
-    for (const resource of this.resourceCards) {
-      this.items[resource.apiResource] = await this.$axios
-        .get(`api/${resource.apiResource}`)
-        .then(response => response.data)
+      for (const resource of this.entityCards) {
+        this.items[resource.apiResource] = await this.$axios
+          .get(`api/${resource.apiResource}`)
+          .then(response => response.data)
+      }
+    } catch (e) {
+      this.checkingCredentials = false
+      let userFriendlyMessage
+      switch (e.message) {
+        case 'Network Error':
+          userFriendlyMessage = 'Could not establish connection with "LaLiga API".'
+          break
+        // e.response.status === 401
+        case 'Request failed with status code 401':
+          userFriendlyMessage = 'Invalid credentials. Try again!'
+          break
+        default:
+          userFriendlyMessage = 'Oops! An unexpected error occurred.'
+      }
+      // eslint-disable-next-line no-console
+      console.error(`${userFriendlyMessage} %o`, e.message)
+      this.snackBar.color = 'red'
+      this.snackBar.text = userFriendlyMessage
+      this.$refs.snackBar.show()
     }
   },
   computed: {
     ...mapGetters(['isAuthenticated'])
-  },
-  methods: {
   }
 }
 </script>

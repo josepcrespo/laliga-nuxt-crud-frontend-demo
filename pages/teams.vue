@@ -14,7 +14,7 @@
     entity="team"
     entity-plural="teams"
     icon="mdi-account-group"
-    :remove-props-before-send="['timestamp']"
+    :remove-props-before-send="['players', 'timestamp']"
   />
 </template>
 
