@@ -568,7 +568,7 @@ export default {
     },
     save () {
       if (this.editedIndex > -1) {
-        this.$axios.put(
+        this.$axios.patch(
           `api/${this.entity}/${this.editedItem.id}`,
           this.updateItemRelations(this.removeObjProps(this.editedItem))
         ).then((response) => {
