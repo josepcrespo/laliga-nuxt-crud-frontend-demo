@@ -364,7 +364,7 @@ export default {
       }).forEach(async (relation) => {
         const tempItemsList = await this.getResourceList(relation.value)
         if (relation.required === false) {
-          tempItemsList.unshift({ id: null, name: `[Without ${relation.value}]` })
+          tempItemsList.unshift({ id: 0, name: `[Without ${relation.value}]` })
         }
         this.itemsFromRelations[relation.value] = tempItemsList
       })
@@ -466,6 +466,7 @@ export default {
     editItem (item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
+      this.initNullRelationsForVueModel()
       this.dialog = true
     },
     filterItemProps (propsArrName, item, withoutId) {
@@ -496,9 +497,9 @@ export default {
     getEditableProp (value) {
       return this.editableProps.find(obj => obj.value === value)
     },
-    getDefaultValueByType (type) {
+    getDefaultValueByType (prop) {
       let defaultValue
-      switch (type) {
+      switch (prop.type) {
         case 'text':
         case 'date':
         case 'enum':
@@ -509,7 +510,9 @@ export default {
           defaultValue = 0
           break
         case 'relation':
-          defaultValue = {}
+          defaultValue = {
+            [prop.relationId]: 0
+          }
           break
         default:
           defaultValue = null
@@ -535,9 +538,18 @@ export default {
      */
     initItemTemplates () {
       this.editableProps.forEach((prop) => {
-        this.defaultItem[prop.value] = this.getDefaultValueByType(prop.type)
+        this.defaultItem[prop.value] = this.getDefaultValueByType(prop)
       })
       this.editedItem = Object.assign({}, this.defaultItem)
+    },
+    initNullRelationsForVueModel () {
+      this.editableProps.filter((prop) => {
+        return prop.type === 'relation'
+      }).forEach((prop) => {
+        if (this.editedItem[prop.value] === null) {
+          this.editedItem[prop.value] = this.getDefaultValueByType(prop)
+        }
+      })
     },
     onResize () {
       this.windowSize = { x: window.innerWidth, y: window.innerHeight }
