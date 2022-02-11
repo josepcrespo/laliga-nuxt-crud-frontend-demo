@@ -146,6 +146,13 @@
                                 :label="getEditableProp(prop.name).text"
                                 :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
                               />
+                              <v-file-input
+                                v-else-if="getEditableProp(prop.name).type === 'image'"
+                                v-model="editedItem[prop.name]"
+                                :label="getEditableProp(prop.name).text"
+                                :rules="[v => (getEditableProp(prop.name).required ? !!v : true) || 'Required']"
+                                accept="image/*"
+                              />
                               <v-select
                                 v-else-if="getEditableProp(prop.name).type === 'relation'"
                                 v-model="editedItem[prop.name][getEditableProp(prop.name).relationId]"

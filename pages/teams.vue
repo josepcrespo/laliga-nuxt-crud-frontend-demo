@@ -8,7 +8,7 @@
     ]"
     :editable-props="[
       { text: 'Name', value: 'name', type: 'text', required: true },
-      { text: 'Emblem', value: 'emblem', type: 'text', required: false },
+      { text: 'Emblem', value: 'emblem', type: 'image', required: false },
       { text: 'Salary Limit', value: 'salary_limit', type: 'number', required: true }
     ]"
     entity="team"
